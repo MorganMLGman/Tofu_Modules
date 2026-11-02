@@ -21,4 +21,5 @@ module "cloudflared" {
 ```
 
 Add `depends_on = [docker_container.app]` on the call if the network must be in use first.
+Options: `network_mode = "host"` (instead of `docker_network_name`, to reach services as `localhost`), `tunnel_secret` (adopt a tunnel whose secret lives in another resource, e.g. a `random_id`; leaving it null generates one), `container_name`, `image_name`.
 Outputs: `tunnel_id`, `container_name`.

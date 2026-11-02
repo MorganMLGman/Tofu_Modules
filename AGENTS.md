@@ -4,7 +4,7 @@ Reusable OpenTofu modules (Proxmox, Docker, Cloudflare, MikroTik). Library only:
 
 ## Layout
 
-Directories are grouped by the provider a module drives: `proxmox/`, `docker/`, `cloudflare/`, `mikrotik/`. Each module has `main.tf`, `variables.tf`, `outputs.tf`, `terraform.tf` and a `README.md`. The module index is in [README.md](README.md). `templates/docker_workspace/` and `scripts/new_docker_workspace.sh` scaffold the per-host docker workspaces of consumer repos; change the template, not generated copies.
+Directories are grouped by the provider a module drives: `proxmox/`, `docker/`, `cloudflare/`, `mikrotik/`. Each module has `main.tf`, `variables.tf`, `outputs.tf`, `terraform.tf` and a `README.md`. The module index is in [README.md](README.md). `templates/docker_workspace/` and `scripts/new_docker_workspace.py` scaffold the per-host docker workspaces of consumer repos; change the template, not generated copies.
 
 ## Commands
 

@@ -44,3 +44,33 @@ run "ingress_module_receives_the_services" {
     error_message = "Services must be forwarded to the ingress module."
   }
 }
+
+run "host_mode_and_adopted_secret" {
+  command = plan
+
+  variables {
+    docker_network_name = null
+    network_mode        = "host"
+    tunnel_secret       = "c2VjcmV0"
+  }
+
+  assert {
+    condition     = docker_container.cloudflared.network_mode == "host" && length(docker_container.cloudflared.networks_advanced) == 0
+    error_message = "network_mode host must replace the network attachment."
+  }
+
+  assert {
+    condition     = length(random_bytes.tunnel_secret) == 0
+    error_message = "A supplied tunnel_secret must suppress the generated one."
+  }
+}
+
+run "network_or_mode_is_required" {
+  command = plan
+
+  variables {
+    docker_network_name = null
+  }
+
+  expect_failures = [var.docker_network_name]
+}

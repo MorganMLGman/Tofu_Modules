@@ -1,4 +1,5 @@
 resource "random_bytes" "tunnel_secret" {
+  count  = var.tunnel_secret == null ? 1 : 0
   length = 32
 }
 
@@ -6,7 +7,7 @@ resource "cloudflare_zero_trust_tunnel_cloudflared" "tunnel" {
   account_id    = var.cf_account_id
   name          = var.tunnel_name
   config_src    = "cloudflare"
-  tunnel_secret = random_bytes.tunnel_secret.base64
+  tunnel_secret = var.tunnel_secret != null ? var.tunnel_secret : random_bytes.tunnel_secret[0].base64
 }
 
 data "cloudflare_zero_trust_tunnel_cloudflared_token" "tunnel" {
@@ -39,6 +40,8 @@ resource "docker_container" "cloudflared" {
   image   = docker_image.cloudflared.image_id
   restart = "unless-stopped"
 
+  network_mode = var.network_mode
+
   log_driver = "json-file"
   log_opts = {
     "max-size" = "10m"
@@ -47,7 +50,10 @@ resource "docker_container" "cloudflared" {
 
   command = ["tunnel", "run", "--token", sensitive(data.cloudflare_zero_trust_tunnel_cloudflared_token.tunnel.token)]
 
-  networks_advanced {
-    name = var.docker_network_name
+  dynamic "networks_advanced" {
+    for_each = var.docker_network_name != null ? [var.docker_network_name] : []
+    content {
+      name = networks_advanced.value
+    }
   }
 }

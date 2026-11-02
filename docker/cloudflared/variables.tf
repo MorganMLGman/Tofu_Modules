@@ -10,8 +10,27 @@ variable "container_name" {
 }
 
 variable "docker_network_name" {
-  description = "Existing Docker network the cloudflared container joins. It must be able to resolve every service hostname in services."
+  description = "Existing Docker network the cloudflared container joins. It must be able to resolve every service hostname in services. Leave null when network_mode is set."
   type        = string
+  default     = null
+
+  validation {
+    condition     = var.docker_network_name != null || var.network_mode != null
+    error_message = "Set docker_network_name or network_mode."
+  }
+}
+
+variable "network_mode" {
+  description = "Docker network mode of the cloudflared container (e.g. \"host\", to reach services as localhost). Leave null to join docker_network_name."
+  type        = string
+  default     = null
+}
+
+variable "tunnel_secret" {
+  description = "Base64 tunnel secret (32 random bytes). Leave null to generate one. Pass an existing value to adopt a tunnel whose secret lives in another resource (changing the secret replaces the tunnel)."
+  type        = string
+  default     = null
+  sensitive   = true
 }
 
 variable "cf_domain" {
