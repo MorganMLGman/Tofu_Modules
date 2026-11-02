@@ -16,15 +16,9 @@ resource "docker_network" "service_network" {
 
 # --- Image ---
 
-data "docker_registry_image" "registry_image" {
-  name = var.image_name
-}
-
-# Pinned by digest: with a bare tag plus pull_triggers the provider updates state but never re-pulls,
-# so image_id goes stale and the container is not recreated.
-resource "docker_image" "service_image" {
-  name         = "${data.docker_registry_image.registry_image.name}@${data.docker_registry_image.registry_image.sha256_digest}"
-  keep_locally = true
+module "image" {
+  source = "../image"
+  name   = var.image_name
 }
 
 # --- Container ---
@@ -37,16 +31,40 @@ locals {
 }
 
 resource "docker_container" "service_container" {
-  name    = "${var.service_name}_app"
-  image   = docker_image.service_image.image_id
-  restart = var.restart_policy
+  name         = coalesce(var.container_name, "${var.service_name}_app")
+  image        = module.image.image_id
+  restart      = var.restart_policy
+  network_mode = var.network_mode
+  runtime      = var.runtime
+  memory       = var.memory
+  log_driver   = var.log_driver
+  log_opts     = var.log_opts
 
   dynamic "volumes" {
     for_each = var.volumes
     content {
       host_path      = volumes.value.host_path
+      volume_name    = volumes.value.volume_name
       container_path = volumes.value.container_path
       read_only      = volumes.value.read_only
+    }
+  }
+
+  dynamic "capabilities" {
+    for_each = length(var.capabilities_add) > 0 ? [var.capabilities_add] : []
+    content {
+      add = capabilities.value
+    }
+  }
+
+  dynamic "healthcheck" {
+    for_each = var.healthcheck != null ? [var.healthcheck] : []
+    content {
+      test         = healthcheck.value.test
+      interval     = healthcheck.value.interval
+      timeout      = healthcheck.value.timeout
+      retries      = healthcheck.value.retries
+      start_period = healthcheck.value.start_period
     }
   }
 
@@ -86,8 +104,5 @@ resource "docker_container" "service_container" {
   env     = var.environment_variables
   command = length(var.command) > 0 ? var.command : null
 
-  depends_on = [
-    docker_image.service_image,
-    docker_network.service_network
-  ]
+  depends_on = [docker_network.service_network]
 }

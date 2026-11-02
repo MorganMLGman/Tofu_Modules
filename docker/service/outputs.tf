@@ -10,12 +10,12 @@ output "container_name" {
 
 output "image_id" {
   description = "The ID of the Docker image"
-  value       = docker_image.service_image.image_id
+  value       = module.image.image_id
 }
 
 output "image_name" {
   description = "The name of the Docker image"
-  value       = docker_image.service_image.name
+  value       = module.image.name
 }
 
 output "network_ids" {

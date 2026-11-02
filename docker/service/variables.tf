@@ -1,6 +1,12 @@
 variable "service_name" {
-  description = "Name of the Docker service (used for container naming and volume paths)"
+  description = "Name of the Docker service. The container is named <service_name>_app unless container_name is set."
   type        = string
+}
+
+variable "container_name" {
+  description = "Exact container name. null (default) means <service_name>_app. Set it to adopt an existing container without renaming it."
+  type        = string
+  default     = null
 }
 
 variable "image_name" {
@@ -9,13 +15,19 @@ variable "image_name" {
 }
 
 variable "volumes" {
-  description = "List of volume mappings"
+  description = "Volume mappings. Each entry sets exactly one of host_path (bind mount) or volume_name (named volume, e.g. docker_volume.x.name)."
   type = list(object({
-    host_path      = string
     container_path = string
+    host_path      = optional(string)
+    volume_name    = optional(string)
     read_only      = optional(bool, false)
   }))
   default = []
+
+  validation {
+    condition     = alltrue([for vol in var.volumes : (vol.host_path != null) != (vol.volume_name != null)])
+    error_message = "Each volume needs exactly one of host_path or volume_name."
+  }
 }
 
 variable "ports" {
@@ -81,4 +93,55 @@ variable "devices" {
     permissions    = optional(string, "rwm")
   }))
   default = []
+}
+
+variable "network_mode" {
+  description = "Docker network mode (e.g. \"host\"). null leaves the default."
+  type        = string
+  default     = null
+}
+
+variable "runtime" {
+  description = "Container runtime (e.g. \"nvidia\"). null leaves the default."
+  type        = string
+  default     = null
+}
+
+variable "memory" {
+  description = "Memory limit in MB. null means unlimited."
+  type        = number
+  default     = null
+}
+
+variable "capabilities_add" {
+  description = "Linux capabilities to add (e.g. [\"CAP_NET_BIND_SERVICE\"])"
+  type        = list(string)
+  default     = []
+}
+
+variable "healthcheck" {
+  description = "Container healthcheck. null means none."
+  type = object({
+    test         = list(string)
+    interval     = string
+    timeout      = string
+    retries      = number
+    start_period = optional(string)
+  })
+  default = null
+}
+
+variable "log_driver" {
+  description = "Logging driver"
+  type        = string
+  default     = "json-file"
+}
+
+variable "log_opts" {
+  description = "Logging driver options"
+  type        = map(string)
+  default = {
+    "max-size" = "10m"
+    "max-file" = "3"
+  }
 }

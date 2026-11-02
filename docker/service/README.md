@@ -24,14 +24,21 @@ This module manages individual Docker containers with:
 
 | Variable | Type | Description |
 |----------|------|-------------|
-| `service_name` | `string` | Service name (used for container naming) |
+| `service_name` | `string` | Service name; the container is named `<service_name>_app` unless `container_name` is set |
 | `image_name` | `string` | Docker image with tag (e.g. `nginx:latest`) |
 
 ### Optional
 
 | Variable | Type | Default | Description |
 |----------|------|---------|-------------|
-| `volumes` | `list(object)` | `[]` | Volume mappings (host_path, container_path, read_only) |
+| `container_name` | `string` | `null` | Exact container name (adopt an existing container without renaming it) |
+| `volumes` | `list(object)` | `[]` | Mounts: `container_path` plus exactly one of `host_path` (bind) or `volume_name` (named volume, e.g. `docker_volume.x.name`), optional `read_only` |
+| `healthcheck` | `object` | `null` | `test`, `interval`, `timeout`, `retries`, optional `start_period` |
+| `network_mode` | `string` | `null` | e.g. `"host"` |
+| `runtime` | `string` | `null` | e.g. `"nvidia"` |
+| `memory` | `number` | `null` | Memory limit in MB |
+| `capabilities_add` | `list(string)` | `[]` | Linux capabilities to add |
+| `log_driver`, `log_opts` | `string`, `map(string)` | `json-file`, `max-size=10m` / `max-file=3` | Logging; the default is the one every container in the homelab already uses |
 | `ports` | `list(object)` | `[]` | Port mappings (internal, external, protocol) |
 | `environment_variables` | `list(string)` | `[]` | Environment variables in KEY=VALUE format |
 | `restart_policy` | `string` | `"unless-stopped"` | Restart policy (no, always, unless-stopped, on-failure) |
@@ -163,6 +170,9 @@ provider "docker" {
 ```
 
 ## Notes
+
+- The image is resolved through [`docker/image`](../image/), so it is always pinned by digest.
+- To adopt an existing container, set `container_name` to its current name and add `moved { from = docker_container.x  to = module.x.docker_container.service_container }` (and for its image `from = docker_image.x  to = module.x.module.image.docker_image.this`). A container that referenced its image by `.name` instead of `.image_id` is replaced by the move, because the `image` attribute changes from the reference to the image ID.
 
 - Container is named `${service_name}_app`
 - The image is pinned by registry digest on every plan; a new digest pulls the image and recreates the container
