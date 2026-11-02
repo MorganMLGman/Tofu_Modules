@@ -63,7 +63,7 @@ All other `ct_*` inputs are documented in [variables.tf](variables.tf).
 
 ## Outputs
 
-`ct_id`, `ct_hostname`, `ct_ipv4_address`, `ct_ipv4_map`, `ct_status`, `ct_node_name`, `ct_mac_addresses`, `wait_complete`, `provisioner_result`, `docker_host_ssh`, `docker_host_tcp`, `docker_ssh_opts`.
+`connection` (one object with `id`, `hostname`, `ip`, `mac_addresses`, `docker_host_ssh`, `docker_ssh_opts`; export this instead of five outputs), `ct_id`, `ct_hostname`, `ct_ipv4_address`, `ct_ipv4_map`, `ct_status`, `ct_node_name`, `ct_mac_addresses`, `wait_complete`, `provisioner_result`, `docker_host_ssh`, `docker_host_tcp`, `docker_ssh_opts`.
 
 ## State migration
 

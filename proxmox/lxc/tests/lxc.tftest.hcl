@@ -118,3 +118,22 @@ run "nvidia_requires_privileged_container" {
 
   expect_failures = [proxmox_virtual_environment_container.lxc]
 }
+
+run "connection_bundles_the_fields_a_downstream_workspace_reads" {
+  command = plan
+
+  variables {
+    docker   = {}
+    ssh_host = "192.168.1.10"
+  }
+
+  assert {
+    condition     = output.connection.hostname == "lxc-test" && output.connection.docker_host_ssh == "ssh://root@192.168.1.10:22"
+    error_message = "connection must carry the hostname and the docker host string."
+  }
+
+  assert {
+    condition     = output.connection.mac_addresses == output.ct_mac_addresses
+    error_message = "connection.mac_addresses must match ct_mac_addresses."
+  }
+}

@@ -37,6 +37,9 @@ locals {
   container_ipv4 = try(coalesce([for iface in var.ct_network_interfaces : lookup(proxmox_virtual_environment_container.lxc.ipv4, iface.name, "")]...), "")
   ssh_host       = var.ssh_host != null ? var.ssh_host : local.container_ipv4
 
+  docker_host_ssh = var.docker != null ? "ssh://${var.ssh_user}@${local.ssh_host}:${var.ssh_port}" : null
+  mac_addresses   = { for idx, iface in var.ct_network_interfaces : iface.name => local.effective_mac_addresses[idx] }
+
   docker_install_script = var.docker == null ? "" : templatefile("${path.module}/scripts/install_docker.sh", {
     docker_daemon_config = var.docker.daemon_config
     docker_compose       = var.docker.install_compose

@@ -30,10 +30,7 @@ output "ct_node_name" {
 
 output "ct_mac_addresses" {
   description = "Effective MAC addresses keyed by interface name (generated from hostname + interface name, or caller-supplied)"
-  value = {
-    for idx, iface in var.ct_network_interfaces :
-    iface.name => local.effective_mac_addresses[idx]
-  }
+  value       = local.mac_addresses
 }
 
 output "provisioner_result" {
@@ -43,7 +40,7 @@ output "provisioner_result" {
 
 output "docker_host_ssh" {
   description = "Value for the docker provider's host argument (null when docker is disabled)"
-  value       = var.docker != null ? "ssh://${var.ssh_user}@${local.ssh_host}:${var.ssh_port}" : null
+  value       = local.docker_host_ssh
 }
 
 output "docker_host_tcp" {
@@ -59,4 +56,16 @@ output "docker_ssh_opts" {
 output "wait_complete" {
   description = "Opaque token that resolves after post-creation wait; reference this output to establish ordering"
   value       = time_sleep.wait_for_boot.id
+}
+
+output "connection" {
+  description = "Everything a downstream workspace needs about this container, as one object. Export it as a single root output instead of one output per field."
+  value = {
+    id              = proxmox_virtual_environment_container.lxc.vm_id
+    hostname        = var.ct_hostname
+    ip              = local.container_ipv4
+    mac_addresses   = local.mac_addresses
+    docker_host_ssh = local.docker_host_ssh
+    docker_ssh_opts = ["-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null"]
+  }
 }

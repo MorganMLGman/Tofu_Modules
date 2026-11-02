@@ -15,6 +15,14 @@ Reusable OpenTofu modules for the homelab (Proxmox, Docker, Cloudflare, MikroTik
 
 Coming from the removed pre-GitHub modules (`lxc_base`, `lxc_docker_host`, `lxc_docker_nvidia_host`, `lxc_ssh_provisioned`, `docker_service`)? See [MIGRATION.md](MIGRATION.md).
 
+## Two-layer docker workspaces
+
+A host is split in two workspaces: the LXC layer (`proxmox/lxc`) and one `<name>_docker/` workspace per host for its containers, because the `docker` provider needs the host address that only exists after the LXC is created.
+
+- **LXC layer:** export one object per container: `output "lxc_<name>" { value = module.lxc_<name>.connection }`.
+- **Docker layer:** `scripts/new_docker_workspace.sh <consumer-repo> <name> [port]` generates `_backend.tf`, `_providers.tf`, `_secrets.tf`, `_locals.tf` and `_outputs.tf` from [templates/docker_workspace](templates/docker_workspace/). Per-repo values (state bucket and prefix, secret ids, domain) live in `<consumer-repo>/.docker-workspace.env`; start from [workspace.env.example](templates/docker_workspace/workspace.env.example).
+- The same files are generated for every workspace, so they never drift. `local.lxc` is the container, `local.secrets` the app secrets plus `local.secrets.cloudflare`.
+
 ## Using a module
 
 Always pin: `source = "git::ssh://git@github.com/MorganMLGman/Tofu_Modules.git//<path>?ref=<tag>"`.

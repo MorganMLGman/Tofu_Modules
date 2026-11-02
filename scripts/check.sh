@@ -12,3 +12,5 @@ for dir in $(find proxmox/lxc proxmox/vm_ci_qcow2 docker cloudflare mikrotik -na
   tofu -chdir="$dir" validate
   if [ -d "$dir/tests" ]; then tofu -chdir="$dir" test; fi
 done
+
+scripts/test_scaffold.sh
