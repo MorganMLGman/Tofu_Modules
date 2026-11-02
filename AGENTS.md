@@ -9,7 +9,7 @@ Directories are grouped by the provider a module drives: `proxmox/`, `docker/`, 
 ## Commands
 
 ```bash
-scripts/check.sh                 # fmt -check, validate every module, tofu test where tests/ exists
+scripts/check.sh                 # fmt -check, validate every module, tofu test where tests/ exists (also run by CI)
 tofu fmt -recursive <dir>        # fix formatting
 tofu -chdir=proxmox/lxc test     # mock-provider tests for the LXC module
 ```

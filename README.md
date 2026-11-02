@@ -24,4 +24,4 @@ Tag per module (`proxmox-lxc/v1.0.0`, `docker-cloudflared/v1.0.0`, ...) so a bre
 
 ## Checks
 
-`scripts/check.sh` runs `tofu fmt -check`, `validate` for every module, and `tofu test` where a module has `tests/`.
+`scripts/check.sh` runs `tofu fmt -check`, `validate` for every module, and `tofu test` (mock providers, no credentials needed) where a module has `tests/`. The same script runs in CI on every push and pull request ([.github/workflows/ci.yaml](.github/workflows/ci.yaml)), against the minimum supported OpenTofu (1.11.2) and the latest release.

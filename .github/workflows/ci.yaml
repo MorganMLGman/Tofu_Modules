@@ -1,0 +1,25 @@
+name: ci
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Lower bound declared in every terraform.tf, and the newest release.
+        tofu_version: ["1.11.2", "latest"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: ${{ matrix.tofu_version }}
+          tofu_wrapper: false
+      - run: scripts/check.sh
