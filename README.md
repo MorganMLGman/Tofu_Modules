@@ -7,6 +7,7 @@ Reusable OpenTofu modules for the homelab (Proxmox, Docker, Cloudflare, MikroTik
 | [proxmox/lxc](proxmox/lxc/) | LXC container; optional Docker, NVIDIA GPU passthrough and SSH provisioning |
 | [proxmox/vm_ci_qcow2](proxmox/vm_ci_qcow2/) | Cloud-init VM from a qcow2 image |
 | [docker/service](docker/service/) | One Docker container, image pinned by digest |
+| [docker/image](docker/image/) | A Docker image pinned by registry digest |
 | [docker/cloudflared](docker/cloudflared/) | Cloudflare tunnel + ingress + `cloudflared` container |
 | [cloudflare/cloudflare_tunnel_ingress](cloudflare/cloudflare_tunnel_ingress/) | CNAMEs and ingress rules for an existing tunnel |
 | [cloudflare/cloudflare_zero_trust_access_application](cloudflare/cloudflare_zero_trust_access_application/) | Access applications, policies and service tokens |
