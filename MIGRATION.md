@@ -2,11 +2,7 @@
 
 Nothing here has been applied to any consumer. Every step below ends with `tofu plan`; do not apply unless it shows no unexpected replacement.
 
-## Why the old LXC modules are still here
-
-`lxc_docker_host` and `lxc_docker_nvidia_host` at tags v2.0.2 and v3.0.0 load `lxc_base` from the default branch (no `?ref=`). **Do not change or remove `proxmox/lxc_base` on master** until no consumer uses those tags. Delete the three deprecated directories (`lxc_base`, `lxc_docker_host`, `lxc_docker_nvidia_host`) together afterwards. `lxc_ssh_provisioned` has already been removed from master; it had no consumers and stays available at the old tags.
-
-The repository now lives on GitHub without history. The old tags (v1.0.0 ... v3.0.0) exist only on the previous Codeberg remote, and the v2.0.2 / v3.0.0 wrappers still fetch `lxc_base` from the master branch there. Keep that repository until the last consumer has migrated.
+Coming from the pre-GitHub modules (`lxc_base`, `lxc_docker_host`, `lxc_docker_nvidia_host`, `lxc_ssh_provisioned`, `docker_service`, `cloudflare_tunnel_simple`)? They are gone from this repository; the old tags (v1.0.0 ... v3.0.0) only exist on the previous Codeberg remote, which consumers still pinned to them must keep using.
 
 ## Old module -> `proxmox/lxc`
 
@@ -25,7 +21,7 @@ The repository now lives on GitHub without history. The old tags (v1.0.0 ... v3.
 4. Outputs: `lxc_ipv4_map` -> `ct_ipv4_map`, `docker_install_result` -> `provisioner_result`. `docker_host_ssh`, `docker_ssh_opts`, `ct_mac_addresses` are unchanged.
 5. `tofu plan`. The container and `time_sleep` are moved by [moved.tf](proxmox/lxc/moved.tf). Expected leftovers: `random_id.mac` and `terraform_data.replace_trigger` are destroyed (harmless); the provisioner script uploads to `/tmp/provisioner.sh` instead of `/tmp/docker_install.sh` and re-runs once (idempotent).
 
-A consumer that used `lxc_base` plus a hand-written `ssh_resource` can keep it, or move the script into `ct_provisioner_script_content` (use `ssh_host` when the address comes from a static lease).
+A consumer that used `lxc_base` (or `lxc_ssh_provisioned`) plus a hand-written `ssh_resource` can keep it, or move the script into `ct_provisioner_script_content` (use `ssh_host` when the address comes from a static lease).
 
 ## `docker_service` -> `docker/service`
 
@@ -34,8 +30,3 @@ Path changed. `pull_triggers_enabled` is gone: the image is always pinned by dig
 ## Per-workspace Cloudflare tunnel -> `docker/cloudflared`
 
 The tunnel, secret, token, ingress and `cloudflared` container resources move into the module. In the caller add `moved` blocks from the old root addresses (`cloudflare_zero_trust_tunnel_cloudflared.x`, `random_bytes.tunnel_secret`, `docker_container.cloudflared`, ...) to `module.cloudflared.*`. A workspace whose secret is a `random_id` (pingvin) would get a new `random_bytes` secret, which replaces the tunnel: keep its tunnel resources as they are until that is decided.
-
-## Not yet done
-
-- Tags (none were created), consumer repos, MikroTik repos.
-- `proxmox/vm_ci_qcow2` has no consumers but is kept on purpose.

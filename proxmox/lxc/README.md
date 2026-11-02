@@ -1,6 +1,6 @@
 # proxmox/lxc
 
-One module for every Proxmox LXC in the homelab. It replaces `lxc_base`, `lxc_docker_host`, `lxc_docker_nvidia_host` and `lxc_ssh_provisioned`.
+One module for every Proxmox LXC in the homelab: plain containers, Docker hosts and GPU hosts.
 
 ## What it does
 
@@ -67,7 +67,7 @@ All other `ct_*` inputs are documented in [variables.tf](variables.tf).
 
 ## State migration
 
-[moved.tf](moved.tf) moves resources out of the old wrappers' nested `module.lxc_base`, so switching `source` plans no container replacement. See [MIGRATION.md](../../MIGRATION.md) for the rest.
+Consumers coming from the removed `lxc_docker_host` / `lxc_docker_nvidia_host` wrappers keep their container: [moved.tf](moved.tf) moves it out of the nested `module.lxc_base`. Steps are in [MIGRATION.md](../../MIGRATION.md).
 
 ## Tests
 

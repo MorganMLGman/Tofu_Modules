@@ -13,7 +13,7 @@ Reusable OpenTofu modules for the homelab (Proxmox, Docker, Cloudflare, MikroTik
 | [mikrotik/static_entries](mikrotik/static_entries/) | Static DHCP leases + DNS records |
 | [mikrotik/port_forwarding](mikrotik/port_forwarding/) | DSTNAT rule, forward-chain accept, optional hairpin NAT |
 
-Deprecated, kept only because consumers still pin them: `proxmox/lxc_base`, `proxmox/lxc_docker_host`, `proxmox/lxc_docker_nvidia_host`. `proxmox/lxc_ssh_provisioned` (no consumers) was removed; `proxmox/docker_service` moved to `docker/service`. See [MIGRATION.md](MIGRATION.md).
+Coming from the removed pre-GitHub modules (`lxc_base`, `lxc_docker_host`, `lxc_docker_nvidia_host`, `lxc_ssh_provisioned`, `docker_service`)? See [MIGRATION.md](MIGRATION.md).
 
 ## Using a module
 

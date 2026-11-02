@@ -18,7 +18,6 @@ Never run `tofu apply` or `tofu plan` against real infrastructure from this repo
 
 ## Rules
 
-- **Do not change the interface of `proxmox/lxc_base`.** Tags v2.0.2 and v3.0.0 of `lxc_docker_host` and `lxc_docker_nvidia_host` load it from the default branch with no `?ref=`. It and the two wrappers are deprecated and go away together once no consumer pins them (see [MIGRATION.md](MIGRATION.md)). New work goes into `proxmox/lxc`.
 - **Modules reference each other by relative path** (`../../cloudflare/...`), never by a git URL, so a tag always carries a consistent set.
 - **A breaking change** (renamed or removed input/output, changed resource address) needs a `moved {}` block where state can be migrated, and an entry in [MIGRATION.md](MIGRATION.md).
 - **Module versions** are tagged per module (`proxmox-lxc/v1.0.0`), not one tag for the whole repo.
