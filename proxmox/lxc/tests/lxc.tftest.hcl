@@ -112,8 +112,9 @@ run "nvidia_requires_privileged_container" {
   command = plan
 
   variables {
-    docker = {}
-    nvidia = { driver_version = "580.142" }
+    docker          = {}
+    nvidia          = { driver_version = "580.142" }
+    ct_unprivileged = true
   }
 
   expect_failures = [proxmox_virtual_environment_container.lxc]
@@ -135,5 +136,67 @@ run "connection_bundles_the_fields_a_downstream_workspace_reads" {
   assert {
     condition     = output.connection.mac_addresses == output.ct_mac_addresses
     error_message = "connection.mac_addresses must match ct_mac_addresses."
+  }
+}
+
+run "plain_container_keeps_small_defaults" {
+  command = plan
+
+  assert {
+    condition     = proxmox_virtual_environment_container.lxc.memory[0].dedicated == 512 && proxmox_virtual_environment_container.lxc.disk[0].size == 8
+    error_message = "A plain container defaults to 512 MB and 8 GB."
+  }
+
+  assert {
+    condition     = proxmox_virtual_environment_container.lxc.features[0].keyctl == false && proxmox_virtual_environment_container.lxc.unprivileged == true
+    error_message = "A plain container defaults to unprivileged without keyctl."
+  }
+}
+
+run "docker_host_gets_the_old_wrapper_defaults" {
+  command = plan
+
+  variables {
+    docker = {}
+  }
+
+  assert {
+    condition     = proxmox_virtual_environment_container.lxc.memory[0].dedicated == 1024 && proxmox_virtual_environment_container.lxc.disk[0].size == 16
+    error_message = "Docker hosts default to 1024 MB and 16 GB, as lxc_docker_host did."
+  }
+
+  assert {
+    condition     = proxmox_virtual_environment_container.lxc.features[0].keyctl == true
+    error_message = "Docker hosts need keyctl by default, as lxc_docker_host had it."
+  }
+}
+
+run "explicit_values_beat_the_docker_defaults" {
+  command = plan
+
+  variables {
+    docker              = {}
+    ct_memory_dedicated = 4096
+    ct_disk_size        = 64
+    ct_feature_keyctl   = false
+  }
+
+  assert {
+    condition     = proxmox_virtual_environment_container.lxc.memory[0].dedicated == 4096 && proxmox_virtual_environment_container.lxc.disk[0].size == 64 && proxmox_virtual_environment_container.lxc.features[0].keyctl == false
+    error_message = "An explicit value must win over the docker default."
+  }
+}
+
+run "nvidia_host_is_privileged_by_default" {
+  command = plan
+
+  variables {
+    docker = {}
+    nvidia = { driver_version = "580.142" }
+  }
+
+  assert {
+    condition     = proxmox_virtual_environment_container.lxc.unprivileged == false
+    error_message = "nvidia must default to a privileged container, as lxc_docker_nvidia_host did."
   }
 }

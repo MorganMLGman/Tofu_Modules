@@ -18,8 +18,9 @@ Coming from the pre-GitHub modules (`lxc_base`, `lxc_docker_host`, `lxc_docker_n
 | `ct_extra_tags` | removed (`docker` / `nvidia` tags are added automatically) |
 | `replace_trigger_value` | removed (a changed script never replaces the container) |
 
-4. Outputs: `lxc_ipv4_map` -> `ct_ipv4_map`, `docker_install_result` -> `provisioner_result`. `docker_host_ssh`, `docker_ssh_opts`, `ct_mac_addresses` are unchanged.
-5. `tofu plan`. The container and `time_sleep` are moved by [moved.tf](proxmox/lxc/moved.tf). Expected leftovers: `random_id.mac` and `terraform_data.replace_trigger` are destroyed (harmless); the provisioner script uploads to `/tmp/provisioner.sh` instead of `/tmp/docker_install.sh` and re-runs once (idempotent).
+4. Defaults: with `docker` enabled the module keeps the old wrappers' defaults (1024 MB RAM, 16 GB disk, `keyctl` on; with `nvidia`, privileged). A plain container keeps 512 MB / 8 GB / no `keyctl`. Any explicit value wins. `proxmox-lxc/v1.0.0` got this wrong (Docker hosts planned `keyctl = false` and smaller defaults): use `v1.0.1` or newer.
+5. Outputs: `lxc_ipv4_map` -> `ct_ipv4_map`, `docker_install_result` -> `provisioner_result`. `docker_host_ssh`, `docker_ssh_opts`, `ct_mac_addresses` are unchanged.
+6. `tofu plan`. The container and `time_sleep` are moved by [moved.tf](proxmox/lxc/moved.tf). Expected leftovers: `random_id.mac` and `terraform_data.replace_trigger` are destroyed (harmless); the provisioner script uploads to `/tmp/provisioner.sh` instead of `/tmp/docker_install.sh` and re-runs once (idempotent).
 
 A consumer that used `lxc_base` (or `lxc_ssh_provisioned`) plus a hand-written `ssh_resource` can keep it, or move the script into `ct_provisioner_script_content` (use `ssh_host` when the address comes from a static lease).
 

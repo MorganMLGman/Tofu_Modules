@@ -22,6 +22,12 @@ locals {
     ))
   ]
 
+  # Docker hosts get roomier, keyctl-enabled defaults; an explicit value always wins.
+  unprivileged     = coalesce(var.ct_unprivileged, var.nvidia == null)
+  memory_dedicated = coalesce(var.ct_memory_dedicated, var.docker != null ? 1024 : 512)
+  disk_size        = coalesce(var.ct_disk_size, var.docker != null ? 16 : 8)
+  feature_keyctl   = coalesce(var.ct_feature_keyctl, var.docker != null)
+
   tags = concat(
     var.ct_tags,
     ["tofu"],
@@ -64,7 +70,7 @@ resource "proxmox_virtual_environment_container" "lxc" {
   vm_id       = var.ct_id
   description = var.ct_description
 
-  unprivileged  = var.ct_unprivileged
+  unprivileged  = local.unprivileged
   protection    = var.ct_protection
   started       = var.ct_started
   start_on_boot = var.ct_start_on_boot
@@ -77,7 +83,7 @@ resource "proxmox_virtual_environment_container" "lxc" {
   features {
     nesting = var.ct_feature_nesting
     fuse    = var.ct_feature_fuse
-    keyctl  = var.ct_feature_keyctl
+    keyctl  = local.feature_keyctl
     mount   = length(var.ct_feature_mount) > 0 ? var.ct_feature_mount : null
   }
 
@@ -94,13 +100,13 @@ resource "proxmox_virtual_environment_container" "lxc" {
   }
 
   memory {
-    dedicated = var.ct_memory_dedicated
+    dedicated = local.memory_dedicated
     swap      = var.ct_memory_swap
   }
 
   disk {
     datastore_id  = var.ct_disk_datastore_id
-    size          = var.ct_disk_size
+    size          = local.disk_size
     mount_options = var.ct_disk_mount_options
   }
 
@@ -193,7 +199,7 @@ resource "proxmox_virtual_environment_container" "lxc" {
     ignore_changes = [tags]
 
     precondition {
-      condition     = var.nvidia == null || !var.ct_unprivileged
+      condition     = var.nvidia == null || !local.unprivileged
       error_message = "nvidia device passthrough requires ct_unprivileged = false."
     }
   }

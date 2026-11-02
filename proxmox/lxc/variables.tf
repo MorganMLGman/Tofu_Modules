@@ -33,9 +33,9 @@ variable "ct_tags" {
 # --- Container behavior ---
 
 variable "ct_unprivileged" {
-  description = "Run the container as unprivileged"
+  description = "Run the container as unprivileged. null (default) means true, or false when nvidia is set (GPU passthrough needs a privileged container)."
   type        = bool
-  default     = true
+  default     = null
 }
 
 variable "ct_protection" {
@@ -102,9 +102,9 @@ variable "ct_cpu_units" {
 # --- Memory ---
 
 variable "ct_memory_dedicated" {
-  description = "Dedicated memory in MB"
+  description = "Dedicated memory in MB. null (default) means 1024 when docker is enabled, 512 otherwise."
   type        = number
-  default     = 512
+  default     = null
 }
 
 variable "ct_memory_swap" {
@@ -122,9 +122,9 @@ variable "ct_disk_datastore_id" {
 }
 
 variable "ct_disk_size" {
-  description = "Root filesystem size in GB"
+  description = "Root filesystem size in GB. null (default) means 16 when docker is enabled, 8 otherwise."
   type        = number
-  default     = 8
+  default     = null
 }
 
 variable "ct_disk_mount_options" {
@@ -148,9 +148,9 @@ variable "ct_feature_fuse" {
 }
 
 variable "ct_feature_keyctl" {
-  description = "Enable keyctl system calls"
+  description = "Enable keyctl system calls. null (default) means true when docker is enabled (Docker needs it), false otherwise."
   type        = bool
-  default     = false
+  default     = null
 }
 
 variable "ct_feature_mount" {
