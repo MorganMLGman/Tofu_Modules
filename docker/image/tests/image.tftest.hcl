@@ -19,7 +19,7 @@ run "image_is_pinned_by_digest" {
   }
 
   assert {
-    condition     = docker_image.this.keep_locally == true
-    error_message = "The pinned image must be kept locally."
+    condition     = docker_image.this.keep_locally == false
+    error_message = "A superseded digest must be removed from the host."
   }
 }

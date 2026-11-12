@@ -4,7 +4,8 @@ data "docker_registry_image" "this" {
 
 # Pinned by digest: with a bare tag plus pull_triggers the provider updates state but never re-pulls,
 # so image_id goes stale and containers using the image are not recreated.
+# keep_locally = false removes the superseded digest on replace; with true every :daily bump leaks GBs.
 resource "docker_image" "this" {
   name         = "${data.docker_registry_image.this.name}@${data.docker_registry_image.this.sha256_digest}"
-  keep_locally = true
+  keep_locally = false
 }
